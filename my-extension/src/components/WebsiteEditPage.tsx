@@ -17,21 +17,36 @@ export default function WebsiteEditPage() {
     const [newWebsiteName, setNewWebsiteName] = useState("")
     const [showAlreadyBlockedWebsites, setShowAlreadyBlockedWebsites] = useState<boolean>(true) // websites that are already blocked (eg. reddit, insta etc.)
     const [showCustomBlockedWebsites, setShowCustomBlockedWebsites] = useState<boolean>(true) // websites that are 
-    const [alreadyBlockedWebsitesSet, setSlreadyBlockedWebsitesSet] = useState([])
+    const [alreadyBlockedWebsitesSet, setSlreadyBlockedWebsitesSet] = useState<string[]>([])
     const [hasOpened, setHasOpened] = useState<boolean | null>(JSON.parse(localStorage.getItem('hasOpened')!) ? JSON.parse(localStorage.getItem('hasOpened')!) : false)
 
     console.log(hasOpened)
 
     useEffect(() => {
-      // Load saved list from local storage or use the hardcoded list if none is found
-      const savedItems = JSON.parse(localStorage.getItem('alreadyBlockedWebsites')!);
+      // Attempt to load the list from local storage
+      let savedItems;
+      try {
+        const item = localStorage.getItem("alreadyBlockedWebsites");
+        savedItems = item ? JSON.parse(item) : null;
+      } catch (error) {
+        console.error("Error parsing alreadyBlockedWebsites from localStorage:", error);
+        savedItems = null;
+      }
+    
+    
       if (savedItems && savedItems.length > 0) {
+        // If savedItems exists and has items, use it
         setSlreadyBlockedWebsitesSet(savedItems);
-      } else if(savedItems.length === 0 && hasOpened === false) {
-        setSlreadyBlockedWebsitesSet(alreadyBlockedWebsites as any);
-        setHasOpened(true)
-      }else if(savedItems.length === 0 && hasOpened === true) {
-        setSlreadyBlockedWebsitesSet([])
+      } else {
+        // If savedItems is null, empty, or parsing failed
+        if (hasOpened) {
+          // If the app has been opened before, set to an empty array
+          setSlreadyBlockedWebsitesSet([]);
+        } else {
+          // If the app has not been opened before, use the hardcoded list and mark as opened
+          setSlreadyBlockedWebsitesSet(alreadyBlockedWebsites); // Assuming 'alreadyBlockedWebsites' is an array
+          setHasOpened(true); // This marks the initial setup as done
+        }
       }
     }, []);
 

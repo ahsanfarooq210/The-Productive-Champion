@@ -13,6 +13,16 @@ function Restrict() {
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * restrictMessages.length);
     setRandomMessage(restrictMessages[randomIndex]);
+    try {
+      chrome.tabs.query({active:true,currentWindow:true},function(tabs){
+        console.log('current tab title all tabs',tabs)
+        const activeTab=tabs[0]
+        const tabTitle=activeTab.title
+        console.log('current tab title',tabTitle)
+      })
+    } catch (error) {
+      console.log("current tab title error",error)
+    }
   }, []);
 
   return (
